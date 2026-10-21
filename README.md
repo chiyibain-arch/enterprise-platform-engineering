@@ -5,10 +5,12 @@
 ## Business objective
 Build a reusable internal developer platform supporting independent product teams delivering three services: `market-data-api`, `portfolio-api`, and `risk-api`. Teams request approved environments, ship auditable releases and maintain service-level objectives without separately reinventing infrastructure or security.
 
-## Architecture journey (AWS-first, Azure second)
+## Architecture journey (AWS-only for this project)
 Product team -> Git feature PR -> code, secrets, dependency and IaC checks -> required reviews -> shared Terraform modules -> isolated development/staging/production remote states -> AWS account foundation, VPC (AZs, public and private subnets, NAT, endpoints, routing, security groups), IAM/OIDC, ECR, EKS with managed node groups -> CI builds/tests/scans/SBOM/signing -> Helm chart + Argo CD GitOps -> mock product services -> CloudWatch, OpenTelemetry, Prometheus, Grafana, alerting, SLOs, runbooks and recovery tests.
 
-Phase 2 integrates an Azure landing-zone analogue (resource groups, VNets/subnets, NSGs, AKS, ACR, Azure Monitor and Log Analytics) through independently reviewed Terraform root modules. Compare observability trade-offs: CloudWatch (AWS logs/metrics), Azure Log Analytics (Azure log queries), Prometheus (application/Kubernetes time-series). These are **different systems**, not interchangeable labels.
+AWS is the sole deployment target for this project. Azure is out of scope. The implementation emphasizes Terraform, Kubernetes pods and diagnostics, secure CI/CD, error rates, SLIs/SLOs/SLAs, error budgets, and site reliability engineering.
+
+**Detailed Nasdaq technical panel and build plan:** [AWS Platform Engineering, DevSecOps & SRE Master Plan](docs/interview/nasdaq-aws-devsecops-sre-master-plan.md).
 
 ## Repository roadmap
 ```text
@@ -19,7 +21,6 @@ docs/interview/                 Interview question + explanation per milestone
 docs/runbooks/                  Incidents, drift remediation, SLOs, rollback, DR
 infra/bootstrap/                Create state buckets / initial access (separate bootstrap)
 infra/modules/aws/              Reusable vpc, eks, ecr, iam, observability modules
-infra/modules/azure/            Reusable resource group, vnet, aks, acr, monitoring modules
 infra/environments/dev/          Isolated Terraform root config and state
 infra/environments/stage/        Isolated Terraform root config and state
 infra/environments/prod/         Isolated Terraform root config and state
@@ -59,14 +60,14 @@ tests/                          Unit, integration, policy and failure-game-day t
 4. Three synthetic APIs, service boundaries, Dockerfiles, tests, Helm charts and Argo CD GitOps promotion.
 5. DevSecOps: secret/SAST/SCA/container/IaC/DAST scans, SBOM, signing/provenance, approvals, vulnerability remediation.
 6. Developer platform golden paths/Backstage, automation standards, policy-as-code and self-service.
-7. CloudWatch and Azure Monitor/Log Analytics, OpenTelemetry, Prometheus/Grafana, SLIs/SLOs, error budgets, incident response, DR.
-8. Azure extension: VNet/NSG/AKS/ACR/managed identities and remote-state isolation.
+7. CloudWatch, OpenTelemetry, Prometheus/Grafana, SLIs/SLOs/SLAs, error budgets, error-rate alerting, incident response, DR.
+8. Deep Kubernetes pod debugging, reliability game days, platform engineering golden paths and behavioral STAR scenarios.
 9. Failure injection, architecture reviews, team leadership and 60-minute mock technical panel.
 
 At **every milestone**: one deployable change, one proof (test/log/plan/screenshot), one troubleshooting scenario, one `Why did we choose this?` trade-off, and interview questions answered conversationally.
 
 ## Status / safety
 **Started:** architecture charter; Git structure to be built iteratively.
-**Not yet verified:** branch protection, Terraform plans, AWS/Azure provisioning, security scanner gates, Kubernetes deployments and observability. Never represent an untested example as live production.
+**Not yet verified:** branch protection, Terraform plans, AWS provisioning, security scanner gates, Kubernetes deployments and observability. Never represent an untested example as live production.
 
 Use synthetic data only, cloud spending guardrails, named sandbox accounts, least-privilege credentials, and no employer-internal infrastructure or PHI.
